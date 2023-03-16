@@ -22,9 +22,10 @@ repositories {
     maven("https://repo.spongepowered.org/repository/maven-public/")
     maven("https://repo.sk1er.club/repository/maven-public")
     maven("https://jitpack.io" )
+    maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
 }
 
-val packageLib by configurations.creating {
+val packageLib: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
 }
 
@@ -32,8 +33,9 @@ dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
+    implementation("io.ktor:ktor-client-core-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-cio-jvm:2.2.4")
     implementation("gg.essential:essential-1.8.9-forge:3662")
-
     // Will use the latest version of Floppaclient. Alternatively you can specify a version
     implementation("com.github.FloppaCoding:FloppaClient:-SNAPSHOT")
 }

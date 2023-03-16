@@ -5,9 +5,19 @@ import floppaclient.module.Category
 import floppaclient.module.Module
 import floppaclient.module.SelfRegisterModule
 import floppaclient.module.settings.impl.BooleanSetting
+import floppaclient.module.settings.impl.StringSetting
 import floppaclient.utils.ChatUtils.modMessage
 import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import net.minecraft.client.Minecraft
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientConnectedToServerEvent
+
+val client = HttpClient()
+
 
 /**
  * A simple example of a Module written in Kotlin.
@@ -44,8 +54,15 @@ object ExternalModule : Module(
      *     private val mySetting = +BooleanSetting("My Setting")
      * You can remove or replace this Setting if you don't need it.
      */
-    private val mySetting: Boolean by BooleanSetting("My Setting")
-
+    private val URL = StringSetting("URL", description = "This is the url for the server that you will be authenticating to")
+    private val uuid = StringSetting("uuid", description = "UUID associated with the minecraft account you're on. Get from namemc.com")
+    private val authcode = StringSetting("Auth code", description = "Authentication code")
+    private val player = StringSetting("Player", description = "Who you are (not ur mc username maybe to avoid confusion)")
+    init {
+        this.addSettings(
+            URL,
+            player
+        )
     /**
      * An Event listener for your Module.
      *
@@ -58,8 +75,11 @@ object ExternalModule : Module(
      * You can make them always active by annotation the class with [AlwaysActive][floppaclient.module.AlwaysActive].
      */
     @SubscribeEvent
-    fun onChat(event: ClientChatReceivedEvent) {
-        if (!mySetting || mc.thePlayer == null) return
-        modMessage("Received chat message")
+    suspend fun onGameOpen(event: ClientConnectedToServerEvent) {
+        val response: HttpResponse = client.request(URL.value.toString()) {
+            method = HttpMethod.Post
+            contentType(ContentType.Application.Json)
+            setBody((authcode.value.toString() + uuid.value.toString() + player.value.toString()))
+        }
     }
-}
+}}
